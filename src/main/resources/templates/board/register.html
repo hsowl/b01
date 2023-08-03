@@ -52,9 +52,9 @@
 
     let errorMsg = '';
 
-    if(errors){
-        for (let i = 0; i<errors.length; i++){
-            errorMsg += `${errors[i].field}는 ${errors[i].code} \n`;
+    if (errors) {
+        for (let i = 0; i < errors.length; i++) {
+                errorMsg += `${errors[i].field}는 공란이면 안됩니다. \n`;
         }
         alert(errorMsg);
     }
