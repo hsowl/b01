@@ -50,27 +50,25 @@ public class PageRequestDTO {
 
     private String link;
 
-    public String getLink() {
+    public String getLink(){  // 검색조건과 페이징 조건을 문자열로 구성
 
         if(link == null){
             StringBuilder builder = new StringBuilder();
-
-            builder.append("page = " + this.page);
-
-            builder.append("&size = "+ this.size);
+            builder.append("page="+this.page); // page=0
+            builder.append("&size="+this.size); //page=0&size=10
 
             if(type != null && type.length() > 0){
-                builder.append("&type = " + type);
+                builder.append("&type="+type);
             }
 
             if(keyword != null){
                 try{
-                    builder.append("&keyword = " + URLEncoder.encode(keyword, "UTF-8"));
+                    builder.append("&keyword="+ URLEncoder.encode(keyword, "UTF-8"));
                 }catch (UnsupportedEncodingException e){
-
                 }
             }
             link = builder.toString();
+
 
         }
         return link;

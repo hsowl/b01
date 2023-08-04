@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.b01.domain.Board;
 import org.zerock.b01.dto.BoardDTO;
+import org.zerock.b01.dto.BoardListReplyCountDTO;
 import org.zerock.b01.dto.PageRequestDTO;
 import org.zerock.b01.dto.PageResponseDTO;
 import org.zerock.b01.repository.BoardRepository;
@@ -21,10 +22,11 @@ import java.util.stream.Collectors;
 @Log4j2
 @RequiredArgsConstructor
 @Transactional
-public class BoardServiceImpl implements BoardService{
+public class BoardServiceImpl implements BoardService {
 
     private final ModelMapper modelMapper;
     private final BoardRepository boardRepository;
+
     @Override
     public Long register(BoardDTO boardDTO) {
         Board board = modelMapper.map(boardDTO, Board.class);
@@ -66,21 +68,20 @@ public class BoardServiceImpl implements BoardService{
         Pageable pageable = pageRequestDTO.getPageable("bno");
 
 
-        Page<Board> result = boardRepository.searchAll(types,keyword,pageable);
+        Page<Board> result = boardRepository.searchAll(types, keyword, pageable);
 
         //확인 검색..........
         log.info("-------------------------------------------");
-        log.info("aaa getTotalPage : "+result.getTotalPages());
-        log.info("aaa getSize : "+ result.getSize());
-        log.info("aaa getTotalElements : "+ result.getTotalElements());
+        log.info("aaa getTotalPage : " + result.getTotalPages());
+        log.info("aaa getSize : " + result.getSize());
+        log.info("aaa getTotalElements : " + result.getTotalElements());
         result.getContent().forEach(board -> log.info(board));
         log.info("-------------------------------------------");
 
 
+        List<BoardDTO> dtoList = result.getContent().stream().map(board -> modelMapper.map(board, BoardDTO.class)).collect(Collectors.toList());
 
-        List<BoardDTO> dtoList = result.getContent().stream().map(board -> modelMapper.map(board,BoardDTO.class)).collect(Collectors.toList());
-
-        PageResponseDTO<BoardDTO> pageResponseDTO = new PageResponseDTO<>(pageRequestDTO,dtoList,(int)result.getTotalElements());
+        PageResponseDTO<BoardDTO> pageResponseDTO = new PageResponseDTO<>(pageRequestDTO, dtoList, (int) result.getTotalElements());
 
         return pageResponseDTO;
 
@@ -89,6 +90,21 @@ public class BoardServiceImpl implements BoardService{
 //                .dtoList(dtoList)
 //                .total((int)result.getTotalElements())
 //                .build();
+    }
+
+    @Override
+    public PageResponseDTO<BoardListReplyCountDTO> listWithReplyCount(PageRequestDTO pageRequestDTO) {
+        String[] types = pageRequestDTO.getTypes();
+        String keyword = pageRequestDTO.getKeyword();
+        Pageable pageable = pageRequestDTO.getPageable("bno");
+
+        Page<BoardListReplyCountDTO> result = boardRepository.searchWithReplyCount(types, keyword, pageable);
+
+        return PageResponseDTO.<BoardListReplyCountDTO>withAll()
+                .pageRequestDTO(pageRequestDTO)
+                .dtoList(result.getContent())
+                .total((int)result.getTotalElements())
+                .build();
     }
 
 }
